@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.local
+.env.example
+*.log
+.git
+README.md
+tsconfig.json
+.gitignore
+src
+public
+index.html
+vite.config.ts
