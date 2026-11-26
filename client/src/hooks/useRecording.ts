@@ -167,7 +167,7 @@ export function useRecording(): UseRecordingReturn {
     durationRef.current = 0;
     setDuration(0);
     if (typeof window !== 'undefined') {
-      (window as any)._audioChunkCount = 0;
+      (window as Window & { _audioChunkCount?: number })._audioChunkCount = 0;
     }
 
     try {
@@ -214,10 +214,11 @@ export function useRecording(): UseRecordingReturn {
           const base64 = float32ToInt16Base64(channelData);
           
           // Log first few chunks to verify audio is being processed
-          if (!window._audioChunkCount) window._audioChunkCount = 0;
-          window._audioChunkCount++;
-          if (window._audioChunkCount <= 3) {
-            console.log(`[Recording] Sending audio chunk #${window._audioChunkCount}, size:`, base64.length);
+          const win = window as Window & { _audioChunkCount?: number };
+          if (!win._audioChunkCount) win._audioChunkCount = 0;
+          win._audioChunkCount++;
+          if (win._audioChunkCount <= 3) {
+            console.log(`[Recording] Sending audio chunk #${win._audioChunkCount}, size:`, base64.length);
           }
           
           wsRef.current.sendAudioChunk(base64);
@@ -249,7 +250,7 @@ export function useRecording(): UseRecordingReturn {
             setTranscriptChunks((prev) => {
               if (msg.transcriptType === 'partial') {
                 // Replace last partial or append
-                const lastIdx = prev.findLastIndex((c) => c.type === 'partial');
+                const lastIdx = prev.findLastIndex((c: LiveTranscriptChunk) => c.type === 'partial');
                 if (lastIdx >= 0) {
                   const updated = [...prev];
                   updated[lastIdx] = { ...updated[lastIdx], text, timestamp: Date.now() };
