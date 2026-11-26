@@ -14,7 +14,7 @@
  *   { type: 'error', message: string }
  */
 
-import { WebSocketServer, WebSocket as WS } from 'ws';
+import { WebSocketServer, WebSocket, RawData } from 'ws';
 import { IncomingMessage } from 'http';
 import { Server } from 'http';
 import { GeminiLiveProxy } from './geminiLiveProxy';
@@ -22,14 +22,14 @@ import { GeminiLiveProxy } from './geminiLiveProxy';
 export function attachWebSocketServer(httpServer: Server): WebSocketServer {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
 
-  wss.on('connection', (clientWs: WS, req: IncomingMessage) => {
+  wss.on('connection', (clientWs: WebSocket, req: IncomingMessage) => {
     const clientIp = req.socket.remoteAddress || 'unknown';
     console.log(`[WS] Client connected from ${clientIp}`);
 
     let geminiProxy: GeminiLiveProxy | null = null;
 
     function send(payload: Record<string, unknown>): void {
-      if (clientWs.readyState === WS.OPEN) {
+      if (clientWs.readyState === WebSocket.OPEN) {
         clientWs.send(JSON.stringify(payload));
       }
     }
@@ -53,7 +53,7 @@ export function attachWebSocketServer(httpServer: Server): WebSocketServer {
       send({ type: 'session_started' });
     }
 
-    clientWs.on('message', (raw: WS.RawData) => {
+    clientWs.on('message', (raw: RawData) => {
       try {
         const msg = JSON.parse(raw.toString()) as {
           type: string;
