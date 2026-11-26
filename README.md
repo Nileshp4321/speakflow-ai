@@ -1,3 +1,4 @@
+
 # SpeakFlow AI — Real-Time Multilingual Speech-to-Text Transcription System
 
 A production-quality web application for real-time speech-to-text transcription supporting **English, Hindi, and Hinglish** (mixed Hindi-English) using the **Google Gemini Live API**.
